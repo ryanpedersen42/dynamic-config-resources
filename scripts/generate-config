@@ -1,0 +1,42 @@
+#!/bin/bash 
+set -o pipefail
+
+RESOURCE_SIZE=$1 #Size of resource class 
+PARALLELISM=$2 #Level of parallelism
+
+mkdir configs/
+cat << EOF > configs/generated_config.yml
+version: 2.1
+
+orbs:
+  node: circleci/node@4.2.0
+
+jobs:
+  test:
+    executor: node
+    parallelism: $PARALLELISM
+    steps:
+      - checkout
+      - node/install-packages:
+          pkg-manager: yarn
+      - run:
+          name: Test application 
+          command: |
+            TEST=$(circleci tests glob **/src/**/*.test.js | circleci tests split --split-by=timings)
+            npm test $TEST
+      - store_test_results:
+          path: ~/project/test-results
+      - store_artifacts:
+          path: ~/project/test-results/junit.xml
+
+workflows:
+  run_test_suite:
+    jobs:
+      - test
+
+executors:
+  node:
+    docker:
+      - image: cimg/node:14.0.0
+    resource_class: $RESOURCE_SIZE
+EOF
