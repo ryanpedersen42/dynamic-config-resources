@@ -1,7 +1,6 @@
 version: 2.1
 setup: true
-orbs:
-  continuation: circleci/continuation@0.2.0
+
 jobs:
   generate-config:
     executor: continuation/default
@@ -12,7 +11,7 @@ jobs:
           command: |
             ./scripts/generate-config "large" 2
       - run:
-          name: Build a valid JSON message using jq and write it to /tmp/continue-body.json
+          name: Build a JSON message using jq and write it to /tmp/continue-body.json
           command: |
             jq -n\
               --arg continuation "$CIRCLE_CONTINUATION_KEY" \
@@ -27,9 +26,6 @@ jobs:
               -H "Content-Type: application/json" \
               --data-binary @/tmp/continue-body.json \
               https://rpdemo.circleserver3.com/api/v2/pipeline/continue
-      # - continuation/continue:
-      #     parameters: '{}'
-      #     configuration_path: configs/generated_config.yml
 workflows:
   setup-workflow:
     jobs:
