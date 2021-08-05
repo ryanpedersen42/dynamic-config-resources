@@ -16,7 +16,7 @@ jobs:
           command: |
             jq -n\
               --arg continuation "$CIRCLE_CONTINUATION_KEY" \
-              --arg config "$(cat /configs/generated_config.yml)" \
+              --arg config "$(cat configs/generated_config.yml)" \
               '{"continuation-key": $continuation, "configuration": $config}' | tee /tmp/continue-body.json
       - run:
           name: Execute generated config
